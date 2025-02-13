@@ -6,7 +6,6 @@ from Anonymous import app as Client
 
 
 @Client.on_message(filters.command("mychannels") & filters.private)
-@is_admin
 async def my_channels(client, message):
     channels = db.get_channels()
     
