@@ -1,7 +1,9 @@
-from pyrogram import Client, filters
+from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from Anonymous.database import db
 from Anonymous.utils.admin_check import is_admin
+from Anonymous import app as Client
+
 
 @Client.on_message(filters.command("mychannels") & filters.private)
 @is_admin
