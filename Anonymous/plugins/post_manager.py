@@ -1,22 +1,46 @@
-from pyrogram import Client, filters
+from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
-from Anonymous.database import db
-from Anonymous import app as Client
+from Anonymous import app
+from database.channels import get_channels
+from database.posts import save_post
 
-@Client.on_callback_query(filters.regex("^create_post_"))
-async def create_post(client, callback_query):
-    chat_id = callback_query.data.split("_")[2]
-    channel = db.channels.find_one({"chat_id": int(chat_id)})
-
-    if not channel:
-        await callback_query.answer("Channel not found!", show_alert=True)
-        return
-
-    await callback_query.message.edit_text(
-        f"Here it is: \"{channel['name']}\" (@{channel['username']}).\n\n"
-        "Send me one or multiple messages you want to include in the post. It can be anything — a text, photo, video, even a sticker.",
+@app.on_callback_query(filters.regex(r"^channel_(\d+)$"))
+async def open_channel_options(client, query):
+    channel_id = int(query.data.split("_")[1])
+    await query.message.edit_text(
+        "Here you can create rich posts, view stats, and accomplish other tasks.",
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("🗑 Delete All", callback_data=f"delete_all_{chat_id}"), InlineKeyboardButton("👀 Preview", callback_data=f"preview_{chat_id}")],
-            [InlineKeyboardButton("❌ Cancel", callback_data="cancel"), InlineKeyboardButton("📢 Send", callback_data=f"send_{chat_id}")]
+            [InlineKeyboardButton("📝 Create Post", callback_data=f"create_post_{channel_id}")],
+            [InlineKeyboardButton("📅 Schedule Post", callback_data=f"schedule_post_{channel_id}"),
+             InlineKeyboardButton("✏ Edit Post", callback_data=f"edit_post_{channel_id}")],
+            [InlineKeyboardButton("📊 Channel Stats", callback_data=f"stats_{channel_id}"),
+             InlineKeyboardButton("⚙ Settings", callback_data=f"settings_{channel_id}")]
+        ])
+    )
+
+@app.on_callback_query(filters.regex(r"^create_post_(\d+)$"))
+async def create_post(client, query):
+    channel_id = int(query.data.split("_")[1])
+    await query.message.edit_text(
+        f"Here it is: {channel_id}.\n\nSend me one or multiple messages you want to include in the post.",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🗑 Delete All", callback_data="delete_all"),
+             InlineKeyboardButton("👁 Preview", callback_data="preview")],
+            [InlineKeyboardButton("❌ Cancel", callback_data="cancel"),
+             InlineKeyboardButton("📤 Send", callback_data="send_post")]
+        ])
+    )
+
+@app.on_message(filters.private & ~filters.command("start"))
+async def receive_post_content(client, message: Message):
+    await save_post(message.chat.id, message.message_id, {"type": message.media, "content": message.text or "Media"})
+    await message.reply_text(
+        "Choose an action:",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("💬 Add Comments", callback_data="add_comments"),
+             InlineKeyboardButton("📌 Add Reactions", callback_data="add_reactions")],
+            [InlineKeyboardButton("🔗 Add URL Buttons", callback_data="add_url_buttons"),
+             InlineKeyboardButton("🗑 Delete Message", callback_data="delete_message")],
+            [InlineKeyboardButton("🔔 Notify [On|Off]", callback_data="toggle_notify")]
         ])
     )
