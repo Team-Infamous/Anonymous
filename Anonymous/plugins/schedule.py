@@ -1,6 +1,8 @@
-from pyrogram import Client, filters
+from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import datetime
+from Anonymous import app as Client 
+
 
 @Client.on_callback_query(filters.regex("^schedule_post_"))
 async def schedule_post(client, callback_query):
