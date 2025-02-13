@@ -18,9 +18,9 @@ async def start(client, message):
         )
         return
 
-    # Otherwise, show the Create Post button with a list of connected channels
+    # Show the Create Post button with a list of connected channels
     channel_buttons = [
-        [InlineKeyboardButton(f"📢 {channel['name']} @{channel['username']}", callback_data=f"channel_{channel['id']}")]
+        [InlineKeyboardButton(f"📢 {channel['name']} @{channel['username']}", callback_data=f"channel_{channel['username']}")]
         for channel in channels
     ]
     
@@ -48,7 +48,7 @@ async def create_post(client, query):
 
     # Show channel selection options
     channel_buttons = [
-        [InlineKeyboardButton(f"📢 {channel['name']} @{channel['username']}", callback_data=f"channel_{channel['id']}")]
+        [InlineKeyboardButton(f"📢 {channel['name']} @{channel['username']}", callback_data=f"channel_{channel['username']}")]
         for channel in channels
     ]
     
@@ -56,4 +56,17 @@ async def create_post(client, query):
     await query.message.edit_text(
         "Here is the list of channels. Choose one to create a post:",
         reply_markup=InlineKeyboardMarkup(channel_buttons)
+    )
+
+@app.on_callback_query(filters.regex(r"^channel_(\S+)$"))
+async def open_channel_options(client, query):
+    channel_username = query.data.split("_")[1]
+    await query.message.edit_text(
+        f"Here it is: @{channel_username}.\n\nSend me one or multiple messages you want to include in the post.",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🗑 Delete All", callback_data="delete_all"),
+             InlineKeyboardButton("👁 Preview", callback_data="preview")],
+            [InlineKeyboardButton("❌ Cancel", callback_data="cancel"),
+             InlineKeyboardButton("📤 Send", callback_data=f"send_post_{channel_username}")]
+        ])
     )
