@@ -1,6 +1,7 @@
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 from Anonymous.database import db
+from Anonymous import app as Client
 
 @Client.on_callback_query(filters.regex("^create_post_"))
 async def create_post(client, callback_query):
