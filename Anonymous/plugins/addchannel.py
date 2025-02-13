@@ -4,8 +4,7 @@ from Anonymous.database import db
 from Anonymous.utils.admin_check import is_admin
 from Anonymous import app as Client
 
-@Client.on_message(filters.command("addchannel") & filters.private)
-@is_admin
+@Client.on_message(filters.command("addchannel") & filters.private )
 async def add_channel(client, message: Message):
     await message.reply_text(
         "To add a channel:\n\n1. Add me as an admin in your channel.\n2. Forward me any message from your channel."
