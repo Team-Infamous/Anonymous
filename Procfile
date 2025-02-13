@@ -1,1 +1,1 @@
-worker: python3 -m Anonymou
+worker: python3 -m Anonymous
