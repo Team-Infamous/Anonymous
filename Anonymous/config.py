@@ -11,3 +11,4 @@ ADMINS = [
         1963465056, #BABY 
         8060386745, # my new
     ]  # Replace with the owner IDs
+DB_NAME = "hasnainkk"
