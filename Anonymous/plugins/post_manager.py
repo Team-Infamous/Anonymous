@@ -33,7 +33,14 @@ async def create_post(client, query):
 
 @app.on_message(filters.private & ~filters.command("start"))
 async def receive_post_content(client, message: Message):
-    await save_post(message.chat.id, message.message_id, {"type": message.media, "content": message.text or "Media"})
+    message_type = message.media if message.media else "text"
+    
+    # Store message content
+    await save_post(message.chat.id, message.id, {
+        "type": message_type,
+        "content": message.text or "Media"
+    })
+    
     await message.reply_text(
         "Choose an action:",
         reply_markup=InlineKeyboardMarkup([
@@ -43,4 +50,4 @@ async def receive_post_content(client, message: Message):
              InlineKeyboardButton("🗑 Delete Message", callback_data="delete_message")],
             [InlineKeyboardButton("🔔 Notify [On|Off]", callback_data="toggle_notify")]
         ])
-    )
+)
