@@ -1,7 +1,7 @@
 from pyrogram import filters
 from pyrogram.types import Message
 from Anonymous import app
-from Anonymous.database.channels import add_channel
+from database.channels import add_channel
 
 @app.on_message(filters.command("addchannel"))
 async def add_channel_handler(client, message: Message):
