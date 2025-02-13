@@ -1,5 +1,7 @@
-from pyrogram import Client, filters
+from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+from Anonymous import app as Client
+
 
 @Client.on_callback_query(filters.regex("^add_url_button_"))
 async def add_url_buttons(client, callback_query):
