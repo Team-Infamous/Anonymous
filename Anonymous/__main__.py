@@ -1,9 +1,6 @@
-from pyrogram import idle
-from Anonymous import app
-from Anonymous.plugins import *
+# (©) Anonymous Emperor
 
-if __name__ == "__main__":
-    print("Bot is running...")
-    app.start()
-    idle()
-    print("Bot stopped.")
+from Anonymous import app
+
+
+app.run()
