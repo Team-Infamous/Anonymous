@@ -1,33 +1,23 @@
 from pyrogram import filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
-from Anonymous import app as Client
+from pyrogram.types import Message
+from Anonymous import app
 
-
-@Client.on_callback_query(filters.regex("^add_url_button_"))
-async def add_url_buttons(client, callback_query):
-    await callback_query.message.reply_text(
-        "Send me a list of URL buttons for the message in this format:\n\n"
+@app.on_callback_query(filters.regex(r"^add_url_buttons$"))
+async def add_url_buttons(client, query):
+    await query.message.edit_text(
+        "Send me a list of URL buttons in this format:\n\n"
         "`Button text 1 - http://example.com/ | Button text 2 - http://example2.com/`\n"
-        "`Button text 3 - http://example3.com/`\n\nChoose 'Cancel' to go back.",
-        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("❌ Cancel", callback_data="cancel")]])
+        "`Button text 3 - http://example3.com/`\n\n"
+        "Choose 'Cancel' to go back to post creation.",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("❌ Cancel", callback_data="cancel")]
+        ])
     )
 
-@Client.on_message(filters.text & filters.private)
-async def save_url_buttons(client, message: Message):
-    buttons = []
-    lines = message.text.split("\n")
-
-    for line in lines:
-        parts = line.split("|")
-        row = []
-        for part in parts:
-            try:
-                text, url = part.strip().split(" - ")
-                row.append(InlineKeyboardButton(text.strip(), url=url.strip()))
-            except ValueError:
-                await message.reply_text("Invalid format! Please follow the correct format.")
-                return
-
-        buttons.append(row)
-
-    await message.reply_text("✅ URL buttons added!", reply_markup=InlineKeyboardMarkup(buttons))
+@app.on_message(filters.text & filters.private)
+async def receive_url_buttons(client, message: Message):
+    buttons = message.text.split("|")
+    formatted_buttons = [btn.strip().split(" - ") for btn in buttons]
+    inline_buttons = [[InlineKeyboardButton(text, url=url)] for text, url in formatted_buttons]
+    
+    await message.reply_text("URL buttons added.", reply_markup=InlineKeyboardMarkup(inline_buttons))
